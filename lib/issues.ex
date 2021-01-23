@@ -15,4 +15,8 @@ defmodule Issues do
   def hello do
     :world
   end
+  def print_stuff() do
+    IO.puts("Hello world!")
+  end
+
 end
