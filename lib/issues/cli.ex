@@ -8,7 +8,11 @@ defmodule Issues.CLI do
   """
 
   def run(argv) do
-    parse_args(argv)
+    argv |> parse_args() |> process()
+  end
+
+  def process(data) do
+
   end
 
   @doc """
@@ -19,13 +23,14 @@ defmodule Issues.CLI do
   """
   def parse_args(argv) do
     #parse the command line arguments
-    parsed = OptionParser.parse(argv, [switches: [help: :boolean], aliases: [h: :help]])
-    case parsed do
-      {[help: true], _, _} -> :help #help option selected, show "helpful" information
-      {_ , [user, project, count], _} -> {user, project, String.to_integer(count)} #user, project and count provided
-      {_, [user, project], _} -> {user, project, @default_count} #only user and project -> default count
-      _ -> :help
-    end
+    {options, arguments, _ } = OptionParser.parse(argv, [switches: [help: :boolean], aliases: [h: :help]])
+    args_to_internal_representation(options, arguments)
   end
+
+
+  def args_to_internal_representation([help: true], _), do: :help
+  def args_to_internal_representation( _, [user, project, count]), do: {user, project, String.to_integer(count)}
+  def args_to_internal_representation( _, [user, project]), do: {user, project, @default_count}
+  def args_to_internal_representation( _, _), do: :help
 
 end
