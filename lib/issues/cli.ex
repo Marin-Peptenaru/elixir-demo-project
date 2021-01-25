@@ -8,11 +8,27 @@ defmodule Issues.CLI do
   """
 
   def run(argv) do
-    argv |> parse_args() |> process()
+    argv |> parse_args() |> process()  #check whether there was an error while fetching
+
   end
 
-  def process(data) do
+  def process({user, project, count}) do
+      Issues.GithubIssues.fetch(user, project)
+      |> decode_response()
+      |> sort_issues()
+      |> last(count)
+  end
 
+  defp last(list, count) do
+    list |>
+    Enum.take(count) |>
+    Enum.reverse()
+  end
+
+
+  def sort_issues(issues) do
+    issues |>
+    Enum.sort(fn (issue1, issue2) -> issue1["created_at"] >= issue2["created_at"] end)
   end
 
   @doc """
@@ -32,5 +48,12 @@ defmodule Issues.CLI do
   def args_to_internal_representation( _, [user, project, count]), do: {user, project, String.to_integer(count)}
   def args_to_internal_representation( _, [user, project]), do: {user, project, @default_count}
   def args_to_internal_representation( _, _), do: :help
+
+
+  defp decode_response({:ok, body}), do: body
+  defp decode_response({:error, error}) do
+    IO.puts("Error fetching from Github:\n #{error["message"]}")
+    System.halt(2)
+  end
 
 end
