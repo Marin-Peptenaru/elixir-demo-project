@@ -2,8 +2,11 @@ defmodule Issues.GithubIssues do
 
   @user_agent [ {"User-agent", "MarinV0321 marin.lff@libero.it"} ]
 
+  require Logger
 
   def fetch(user, project) do
+    Logger.info("Fetching #{user}'s project #{project}")
+
     issues_url(user, project) |>
     HTTPoison.get(@user_agent) |>
     handle_response()
